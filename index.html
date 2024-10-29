@@ -24,8 +24,6 @@
       </div>
     </div>
 
-    <button onclick="initiateAudioDownload()">Play Audio</button> <!-- Button to test audio download -->
-
     <script>
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
@@ -97,31 +95,7 @@
       };
 
       document.body.appendChild(script);
-
-      // Audio download and play functionality
-      mergeInto(LibraryManager.library, {
-        DownloadAndPlayAudio: function(urlPtr) {
-          const url = UTF8ToString(urlPtr);
-          
-          if (unityInstance && unityInstance.SendMessage) {
-            console.log("Unity instance found. Sending message to Unity...");
-            unityInstance.SendMessage("WebGLAudioManager", "LoadAndPlayAudio", url);
-          } else {
-            console.error("Unity instance not found or not ready.");
-            console.log("Current unityInstance value:", unityInstance);
-          }
-        }
-      });
-
-      // Function to initiate audio download and play
-      function initiateAudioDownload() {
-        const audioUrl = "https://api.ludo-world.com/storage/audios/audio.wav"; // Update with your audio URL
-        if (unityInstance && unityInstance.SendMessage) {
-          unityInstance.SendMessage("WebGLAudioManager", "LoadAndPlayAudio", audioUrl);
-        } else {
-          console.error("Unity instance is not ready yet.");
-        }
-      }
+      
     </script>
   </body>
 </html>
