@@ -115,7 +115,7 @@
 
       // Function to initiate audio download and play
       function initiateAudioDownload() {
-        const audioUrl = "https://example.com/audiofile.wav"; // Update with your audio URL
+        const audioUrl = "https://api.ludo-world.com/storage/audios/audio.wav"; // Update with your audio URL
         if (unityInstance && unityInstance.SendMessage) {
           unityInstance.SendMessage("WebGLAudioManager", "LoadAndPlayAudio", audioUrl);
         } else {
