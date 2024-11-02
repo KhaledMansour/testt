@@ -40,7 +40,6 @@
     <ul id="list"></ul>
 
     <script>
-        // JavaScript code for recording
         let EVENTS = ['start', 'stop', 'pause', 'resume'];
         let TYPES = ['audio/webm', 'audio/ogg', 'audio/wav'];
 
@@ -77,15 +76,19 @@
                 } else {
                     recorder.start(1000);
                 }
+            }).catch(error => {
+                console.error('Error accessing media devices.', error);
             });
             recordParts.blur();
             recordFull.blur();
         }
 
         function stopRecording() {
-            recorder.stop();
-            recorder.stream.getTracks()[0].stop();
-            stop.blur();
+            if (recorder) {
+                recorder.stop();
+                recorder.stream.getTracks().forEach(track => track.stop());
+                stop.blur();
+            }
         }
 
         function pauseRecording() {
@@ -125,28 +128,16 @@
                 li.innerHTML += ', ' + recorder.mimeType;
             }
             list.appendChild(li);
-            if (recorder.state === 'recording') {
-                recordParts.disabled = true;
-                recordFull.disabled = true;
-                request.disabled = false;
-                resume.disabled = true;
-                pause.disabled = false;
-                stop.disabled = false;
-            } else if (recorder.state === 'paused') {
-                recordParts.disabled = true;
-                recordFull.disabled = true;
-                request.disabled = false;
-                resume.disabled = false;
-                pause.disabled = true;
-                stop.disabled = false;
-            } else if (recorder.state === 'inactive') {
-                recordParts.disabled = false;
-                recordFull.disabled = false;
-                request.disabled = true;
-                resume.disabled = true;
-                pause.disabled = true;
-                stop.disabled = true;
-            }
+            updateButtonState();
+        }
+
+        function updateButtonState() {
+            recordParts.disabled = recorder.state === 'recording';
+            recordFull.disabled = recorder.state === 'recording';
+            request.disabled = recorder.state !== 'recording';
+            resume.disabled = recorder.state !== 'paused';
+            pause.disabled = recorder.state !== 'recording';
+            stop.disabled = recorder.state === 'inactive';
         }
 
         list = document.getElementById('list');
@@ -157,15 +148,13 @@
         pause = document.getElementById('pause');
         stop = document.getElementById('stop');
 
-        if (MediaRecorder.notSupported) {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             list.style.display = 'none';
             document.getElementById('controls').style.display = 'none';
             alert('Your browser does not support MediaRecorder API.');
         } else {
             document.getElementById('formats').innerText =
-                'Format: ' + TYPES.filter(i => {
-                    return MediaRecorder.isTypeSupported(i);
-                }).join(', ');
+                'Format: ' + TYPES.filter(i => MediaRecorder.isTypeSupported(i)).join(', ');
 
             recordParts.addEventListener('click', startRecording.bind(null, 'parts'));
             recordFull.addEventListener('click', startRecording.bind(null, 'full'));
@@ -173,9 +162,6 @@
             resume.addEventListener('click', resumeRecording);
             pause.addEventListener('click', pauseRecording);
             stop.addEventListener('click', stopRecording);
-
-            recordParts.disabled = false;
-            recordFull.disabled = false;
         }
     </script>
 </body>
