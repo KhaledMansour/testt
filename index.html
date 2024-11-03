@@ -1,179 +1,122 @@
 <!DOCTYPE html>
 <html lang="en-us">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Audio Recorder</title>
-    <style>
-        /* Basic styling for the recording controls */
-        #controls {
-            margin-top: 20px;
-        }
-        #list {
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div id="controls">
-        <button id="record">Start Recording (Full)</button>
-        <button id="sec">Start Recording (Parts)</button>
-        <button id="request" disabled>Request Data</button>
-        <button id="pause" disabled>Pause</button>
-        <button id="resume" disabled>Resume</button>
-        <button id="stop" disabled>Stop</button>
+    <title>Unity WebGL Player | testRecorder2</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <div id="unity-footer">
+        <div id="unity-webgl-logo"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">testRecorder2</div>
+      </div>
     </div>
-
-    <div id="formats"></div>
-    <ul id="list"></ul>
-
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let EVENTS = ['start', 'stop', 'pause', 'resume'];
-            let TYPES = ['audio/webm', 'audio/ogg', 'audio/wav'];
 
-            let recorder, list, recordFull, recordParts, pause, resume, stop, request;
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var warningBanner = document.querySelector("#unity-warning");
 
-            const KB = 1 << 10;
-            const MB = 1 << 20;
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
 
-            function bytes(value) {
-                let mag = Math.abs(value);
-                let unit;
-                if (mag >= MB) {
-                    unit = 'MB';
-                    value = value / MB;
-                } else if (mag >= KB) {
-                    unit = 'KB';
-                    value = value / KB;
-                } else {
-                    unit = 'B';
-                }
-                return value.toFixed(0).replace(/(?:\.0*|(\.[^0]+)0+)$/, '$1') + ' ' + unit;
-            }
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/Build24.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/Build24.data.unityweb",
+        frameworkUrl: buildUrl + "/Build24.framework.js.unityweb",
+        codeUrl: buildUrl + "/Build24.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "testRecorder2",
+        productVersion: "0.1",
+        showBanner: unityShowBanner,
+      };
 
-            function startRecording(type) {
-                list.innerHTML = '';
-                navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                    recorder = new MediaRecorder(stream);
+      // By default, Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
 
-                    EVENTS.forEach(name => {
-                        recorder.addEventListener(name, changeState.bind(null, name));
-                    });
-                    recorder.addEventListener('dataavailable', saveRecord);
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
 
-                    if (type === 'full') {
-                        recorder.start();
-                    } else {
-                        recorder.start(1000);
-                    }
-                });
-                recordParts.blur();
-                recordFull.blur();
-            }
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        container.className = "unity-mobile";
+        canvas.className = "unity-mobile";
 
-            function stopRecording() {
-                recorder.stop();
-                recorder.stream.getTracks()[0].stop();
-                stop.blur();
-            }
+        // To lower canvas resolution on mobile devices to gain some
+        // performance, uncomment the following line:
+        // config.devicePixelRatio = 1;
 
-            function pauseRecording() {
-                recorder.pause();
-                pause.blur();
-            }
 
-            function resumeRecording() {
-                recorder.resume();
-                resume.blur();
-            }
+      } else {
+        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
 
-            function requestData() {
-                recorder.requestData();
-                request.blur();
-            }
+        canvas.style.width = "960px";
+        canvas.style.height = "600px";
+      }
 
-            function saveRecord(e) {
-                let li = document.createElement('li');
-                let strong = document.createElement('strong');
-                strong.innerText = 'dataavailable: ';
-                li.appendChild(strong);
+      loadingBar.style.display = "block";
 
-                let s = document.createElement('span');
-                s.innerText = e.data.type + ', ' + bytes(e.data.size);
-                li.appendChild(s);
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+              }).then((unityInstance) => {
+                loadingBar.style.display = "none";
+                fullscreenButton.onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
+              }).catch((message) => {
+                alert(message);
+              });
+            };
 
-                let audio = document.createElement('audio');
-                audio.controls = true;
-                audio.src = URL.createObjectURL(e.data);
-                li.appendChild(audio);
+      document.body.appendChild(script);
 
-                list.appendChild(li);
-            }
-
-            function changeState(eventName) {
-                let li = document.createElement('li');
-                li.innerHTML = '<strong>' + eventName + ': </strong>' + recorder.state;
-                if (eventName === 'start') {
-                    li.innerHTML += ', ' + recorder.mimeType;
-                }
-                list.appendChild(li);
-
-                if (recorder.state === 'recording') {
-                    recordParts.disabled = true;
-                    recordFull.disabled = true;
-                    request.disabled = false;
-                    resume.disabled = true;
-                    pause.disabled = false;
-                    stop.disabled = false;
-                } else if (recorder.state === 'paused') {
-                    recordParts.disabled = true;
-                    recordFull.disabled = true;
-                    request.disabled = false;
-                    resume.disabled = false;
-                    pause.disabled = true;
-                    stop.disabled = false;
-                } else if (recorder.state === 'inactive') {
-                    recordParts.disabled = false;
-                    recordFull.disabled = false;
-                    request.disabled = true;
-                    resume.disabled = true;
-                    pause.disabled = true;
-                    stop.disabled = true;
-                }
-            }
-
-            list = document.getElementById('list');
-            recordParts = document.getElementById('sec');
-            recordFull = document.getElementById('record');
-            request = document.getElementById('request');
-            resume = document.getElementById('resume');
-            pause = document.getElementById('pause');
-            stop = document.getElementById('stop');
-
-            if (MediaRecorder.notSupported) {
-                list.style.display = 'none';
-                document.getElementById('controls').style.display = 'none';
-                document.getElementById('formats').style.display = 'none';
-                document.getElementById('support').style.display = 'block';
-            } else {
-                document.getElementById('formats').innerText =
-                    'Format: ' +
-                    TYPES.filter(i => {
-                        return MediaRecorder.isTypeSupported(i);
-                    }).join(', ');
-
-                recordParts.addEventListener('click', startRecording.bind(null, 'parts'));
-                recordFull.addEventListener('click', startRecording.bind(null, 'full'));
-                request.addEventListener('click', requestData);
-                resume.addEventListener('click', resumeRecording);
-                pause.addEventListener('click', pauseRecording);
-                stop.addEventListener('click', stopRecording);
-
-                recordParts.disabled = false;
-                recordFull.disabled = false;
-            }
-        });
     </script>
-</body>
+  </body>
 </html>
