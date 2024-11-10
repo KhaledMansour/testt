@@ -24,7 +24,7 @@
       </div>
     </div>
     <script>
-
+      var unityInstance = null;
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
       var loadingBar = document.querySelector("#unity-loading-bar");
@@ -57,11 +57,11 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Build90.loader.js";
+      var loaderUrl = buildUrl + "/Build91.loader.js";
       var config = {
-        dataUrl: buildUrl + "/Build90.data.unityweb",
-        frameworkUrl: buildUrl + "/Build90.framework.js.unityweb",
-        codeUrl: buildUrl + "/Build90.wasm.unityweb",
+        dataUrl: buildUrl + "/Build91.data.unityweb",
+        frameworkUrl: buildUrl + "/Build91.framework.js.unityweb",
+        codeUrl: buildUrl + "/Build91.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "testRecorder2",
@@ -109,6 +109,7 @@
                 loadingBar.style.display = "none";
                 fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
+		  unityInstance = instance;
                 };
               }).catch((message) => {
                 alert(message);
