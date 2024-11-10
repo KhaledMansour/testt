@@ -109,9 +109,9 @@
                 loadingBar.style.display = "none";
                 fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
-		  console.log('finish loading')
-		  unityInstance.SendMessage("AudioRecorder", TestUnitySendMsg, "Sucess");
-		  myUnityInstance.SendMessage("AudioRecorder", TestUnitySendMsg, "Sucess");
+		  console.log('finish loading2')
+		  unityInstance.UnitySendMessage("AudioRecorder", TestUnitySendMsg, "Sucess");
+		  myUnityInstance.UnitySendMessage("AudioRecorder", TestUnitySendMsg, "Sucess");
                 };
               }).catch((message) => {
                 alert(message);
