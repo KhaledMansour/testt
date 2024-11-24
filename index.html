@@ -20,19 +20,13 @@
         font-size: 16px;
         z-index: 1000;
         cursor: pointer;
+        display: none; /* Initially hidden */
       }
 
-      /* Make the button disappear when in landscape mode */
+      /* Media query to show the button in landscape mode */
       @media screen and (orientation: landscape) {
         #fullscreen-button {
-          display: block;
-        }
-      }
-
-      /* Hide the button in portrait mode if you don't want it */
-      @media screen and (orientation: portrait) {
-        #fullscreen-button {
-          display: block;
+          display: block;  /* Show the button in landscape mode */
         }
       }
     </style>
@@ -115,6 +109,8 @@
           progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
           loadingBar.style.display = "none";
+
+          // Fullscreen button action
           fullscreenButton.onclick = () => {
             if (document.documentElement.requestFullscreen) {
               document.documentElement.requestFullscreen();
@@ -133,6 +129,15 @@
       };
 
       document.body.appendChild(script);
+
+      // Detect landscape orientation and show button only in landscape mode
+      window.addEventListener("orientationchange", function() {
+        if (window.innerHeight < window.innerWidth) {
+          fullscreenButton.style.display = "block"; // Show the button in landscape mode
+        } else {
+          fullscreenButton.style.display = "none"; // Hide the button in portrait mode
+        }
+      });
 
     </script>
   </body>
