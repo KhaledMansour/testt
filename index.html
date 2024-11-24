@@ -9,7 +9,7 @@
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1"></canvas>
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -61,6 +61,20 @@
         productVersion: "1.0",
         showBanner: unityShowBanner,
       };
+
+      function adjustCanvasSize() {
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+
+        canvas.width = width;
+        canvas.height = height;
+        container.style.width = width + 'px';
+        container.style.height = height + 'px';
+      }
+
+      // Adjust canvas size on page load and on resize
+      window.addEventListener('load', adjustCanvasSize);
+      window.addEventListener('resize', adjustCanvasSize);
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement('meta');
