@@ -1,26 +1,39 @@
-/* CSS for Unity WebGL */
-body {
-  margin: 0;
-  padding: 0;
+/* Make sure the body has no padding/margin */
+body { 
+  margin: 0; 
+  padding: 0; 
   overflow: hidden; /* Prevent scrolling */
 }
 
+/* Container to hold the Unity canvas */
 #unity-container {
-  position: fixed;
+  position: fixed; /* Make the container fixed to the screen */
   top: 0;
   left: 0;
-  width: 100vw; /* Full width of the viewport */
-  height: 100vh; /* Full height of the viewport */
-  overflow: hidden;
-}
-
-#unity-canvas {
-  display: block;
   width: 100%;
   height: 100%;
-  background: #231F20; /* Canvas background color */
+  overflow: hidden; /* Ensure no scrollbars appear */
 }
 
+/* Handle Unity canvas to ensure it fills the screen */
+#unity-canvas {
+  width: 100%;
+  height: 100%;
+  background: #231F20; /* Black background */
+  display: block;
+}
+
+/* Styles for Unity on mobile */
+.unity-mobile {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #231F20; /* Ensure a black background */
+}
+
+/* Loading bar styling (centered on the screen) */
 #unity-loading-bar {
   position: absolute;
   left: 50%;
@@ -50,12 +63,37 @@ body {
   background: url('progress-bar-full-dark.png') no-repeat center;
 }
 
+/* Styles for footer */
 #unity-footer {
   position: relative;
 }
 
 .unity-mobile #unity-footer {
   display: none;
+}
+
+/* Additional Unity elements like fullscreen button */
+#unity-webgl-logo {
+  float: left;
+  width: 204px;
+  height: 38px;
+  background: url('webgl-logo.png') no-repeat center;
+}
+
+#unity-build-title {
+  float: right;
+  margin-right: 10px;
+  line-height: 38px;
+  font-family: arial;
+  font-size: 18px;
+}
+
+#unity-fullscreen-button {
+  cursor: pointer;
+  float: right;
+  width: 38px;
+  height: 38px;
+  background: url('fullscreen-button.png') no-repeat center;
 }
 
 #unity-warning {
