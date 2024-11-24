@@ -3,14 +3,43 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <title>Unity WebGL Player | PoolGame</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+      /* CSS for full screen button */
+      #fullscreen-button {
+        position: absolute;
+        top: 10px;  /* Position it at the top of the screen */
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        z-index: 1000;
+        cursor: pointer;
+      }
+
+      /* Make the button disappear when in landscape mode */
+      @media screen and (orientation: landscape) {
+        #fullscreen-button {
+          display: block;
+        }
+      }
+
+      /* Hide the button in portrait mode if you don't want it */
+      @media screen and (orientation: portrait) {
+        #fullscreen-button {
+          display: block;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -24,13 +53,14 @@
         <div id="unity-build-title">PoolGame</div>
       </div>
     </div>
+    <button id="fullscreen-button">Enter Fullscreen</button>  <!-- Fullscreen Button -->
 
     <script>
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var fullscreenButton = document.querySelector("#fullscreen-button");
       var warningBanner = document.querySelector("#unity-warning");
 
       function unityShowBanner(msg, type) {
@@ -64,21 +94,7 @@
         showBanner: unityShowBanner,
       };
 
-      // Dynamically adjust canvas size on load and resize
-      function adjustCanvasSize() {
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-        container.style.width = width + 'px';
-        container.style.height = height + 'px';
-      }
-
-      window.addEventListener('load', adjustCanvasSize);
-      window.addEventListener('resize', adjustCanvasSize);
-
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style - make sure canvas fills the screen
         var meta = document.createElement('meta');
         meta.name = 'viewport';
         meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
@@ -86,9 +102,8 @@
         container.className = "unity-mobile";
         canvas.className = "unity-mobile";
       } else {
-        // Desktop mode - match canvas size to the screen dimensions
-        canvas.style.width = "100vw";
-        canvas.style.height = "100vh";
+        canvas.style.width = "1920px";
+        canvas.style.height = "1080px";
       }
 
       loadingBar.style.display = "block";
@@ -101,6 +116,15 @@
         }).then((unityInstance) => {
           loadingBar.style.display = "none";
           fullscreenButton.onclick = () => {
+            if (document.documentElement.requestFullscreen) {
+              document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {  // Firefox
+              document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {  // Chrome, Safari
+              document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {  // IE/Edge
+              document.documentElement.msRequestFullscreen();
+            }
             unityInstance.SetFullscreen(1);
           };
         }).catch((message) => {
@@ -109,6 +133,7 @@
       };
 
       document.body.appendChild(script);
+
     </script>
   </body>
 </html>
