@@ -1,40 +1,41 @@
-/* Make sure the body has no padding/margin */
+/* Reset the page */
 body {
   margin: 0;
   padding: 0;
   overflow: hidden; /* Prevent scrolling */
 }
 
-/* Container to hold the Unity canvas */
+/* Ensure the container fills the screen and removes margins */
 #unity-container {
-  position: fixed; /* Make the container fixed to the screen */
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden; /* Ensure no scrollbars appear */
+  overflow: hidden;
 }
 
-/* Handle Unity canvas to ensure it fills the screen */
+/* Ensure canvas stretches and fills the container */
 #unity-canvas {
   width: 100%;
   height: 100%;
-  background: #231F20; /* Black background */
+  background: #231F20; /* Black background for Unity canvas */
   display: block;
-  object-fit: cover; /* Ensures canvas fills the container */
+  object-fit: cover; /* This will ensure canvas scales to the container */
+  transform-origin: 0 0;
 }
 
-/* Styles for Unity on mobile */
+/* For mobile view */
 .unity-mobile {
   width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #231F20; /* Ensure a black background */
+  background-color: #231F20;
 }
 
-/* Loading bar styling (centered on the screen) */
+/* Loading bar styles */
 #unity-loading-bar {
   position: absolute;
   left: 50%;
@@ -64,7 +65,7 @@ body {
   background: url('progress-bar-full-dark.png') no-repeat center;
 }
 
-/* Styles for footer */
+/* Footer styling */
 #unity-footer {
   position: relative;
 }
@@ -73,7 +74,7 @@ body {
   display: none;
 }
 
-/* Additional Unity elements like fullscreen button */
+/* Additional Unity elements */
 #unity-webgl-logo {
   float: left;
   width: 204px;

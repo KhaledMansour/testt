@@ -63,18 +63,17 @@
         showBanner: unityShowBanner,
       };
 
+      // Dynamically resize canvas to fill the entire screen
       function adjustCanvasSize() {
         var width = window.innerWidth;
         var height = window.innerHeight;
-
-        // Ensure that the canvas fills the entire screen
         canvas.width = width;
         canvas.height = height;
         container.style.width = width + 'px';
         container.style.height = height + 'px';
+        canvas.style.transform = "scale(1)"; // reset any scaling when resizing
       }
 
-      // Adjust canvas size on page load and on resize
       window.addEventListener('load', adjustCanvasSize);
       window.addEventListener('resize', adjustCanvasSize);
 
