@@ -7,17 +7,17 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <style>
-      /* Ensure the body and container occupy the full screen */
+      /* Reset styles to ensure full-screen behavior */
       html, body {
         margin: 0;
         padding: 0;
         width: 100%;
         height: 100%;
-        overflow: hidden;
+        overflow: hidden; /* Prevent scrolling */
       }
 
       #unity-container {
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         width: 100%;
@@ -29,8 +29,33 @@
 
       #unity-canvas {
         display: block;
-        background-color: black; /* Optional: Set a background color to hide any margins */
+        background: #231F20; /* Optional: Set background to match Unity content */
+        width: 100vw; /* Ensure it matches the viewport width */
+        height: 100vh; /* Ensure it matches the viewport height */
       }
+
+      .unity-mobile #unity-canvas {
+        width: 100vw; /* Mobile-specific override */
+        height: 100vh;
+      }
+
+      #unity-loading-bar {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+      }
+
+      #unity-logo { width: 154px; height: 130px; background: url('unity-logo-dark.png') no-repeat center }
+      #unity-progress-bar-empty { width: 141px; height: 18px; margin-top: 10px; margin-left: 6.5px; background: url('progress-bar-empty-dark.png') no-repeat center }
+      #unity-progress-bar-full { width: 0%; height: 18px; margin-top: 10px; background: url('progress-bar-full-dark.png') no-repeat center }
+      #unity-footer { position: relative }
+      .unity-mobile #unity-footer { display: none }
+      #unity-webgl-logo { float: left; width: 204px; height: 38px; background: url('webgl-logo.png') no-repeat center }
+      #unity-build-title { float: right; margin-right: 10px; line-height: 38px; font-family: arial; font-size: 18px }
+      #unity-fullscreen-button { cursor: pointer; float: right; width: 38px; height: 38px; background: url('fullscreen-button.png') no-repeat center }
+      #unity-warning { position: absolute; left: 50%; top: 5%; transform: translate(-50%); background: white; padding: 10px; display: none }
     </style>
   </head>
   <body>
@@ -42,7 +67,7 @@
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
-      <div id="unity-warning"> </div>
+      <div id="unity-warning"></div>
       <div id="unity-footer">
         <div id="unity-webgl-logo"></div>
         <div id="unity-fullscreen-button"></div>
@@ -57,24 +82,25 @@
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var warningBanner = document.querySelector("#unity-warning");
 
-      // Adjust the canvas to fill the screen
+      // Function to adjust the canvas to fit the screen dynamically
       function resizeCanvas() {
-        var containerWidth = window.innerWidth;
-        var containerHeight = window.innerHeight;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
 
-        // Match the canvas size to the container size (entire viewport)
-        canvas.width = containerWidth;
-        canvas.height = containerHeight;
+        // Match the canvas dimensions to the viewport
+        canvas.width = width;
+        canvas.height = height;
 
-        canvas.style.width = containerWidth + "px";
-        canvas.style.height = containerHeight + "px";
+        // Also adjust CSS for consistency
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
 
-        // Debugging: Log the dimensions
-        console.log(`Canvas resized: ${canvas.width}x${canvas.height}`);
+        console.log(`Canvas resized to: ${width}x${height}`);
       }
 
-      // Call resizeCanvas on load and on window resize
+      // Call resizeCanvas on load, resize, and orientation change
       window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("orientationchange", resizeCanvas);
       document.addEventListener("DOMContentLoaded", resizeCanvas);
 
       var buildUrl = "Build";
@@ -90,7 +116,7 @@
         showBanner: unityShowBanner,
       };
 
-      // Shows a temporary message banner/ribbon for a few seconds
+      // Function to display warnings or error messages
       function unityShowBanner(msg, type) {
         function updateBannerVisibility() {
           warningBanner.style.display = warningBanner.children.length ? "block" : "none";
@@ -109,7 +135,7 @@
         updateBannerVisibility();
       }
 
-      // Mobile optimization
+      // Mobile-specific settings
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement("meta");
         meta.name = "viewport";
