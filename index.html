@@ -8,9 +8,8 @@
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
-    <div style="height:20px; width: 2000px; background: green;" onclick="unityInstance.SetFullscreen(1)"><b>Click here to make it full screen.</b></div>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=200 height=200 tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -58,11 +57,11 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/8PoolWebV5.loader.js";
+      var loaderUrl = buildUrl + "/8PoolWebV6.loader.js";
       var config = {
-        dataUrl: buildUrl + "/8PoolWebV5.data.unityweb",
-        frameworkUrl: buildUrl + "/8PoolWebV5.framework.js.unityweb",
-        codeUrl: buildUrl + "/8PoolWebV5.wasm.unityweb",
+        dataUrl: buildUrl + "/8PoolWebV6.data.unityweb",
+        frameworkUrl: buildUrl + "/8PoolWebV6.framework.js.unityweb",
+        codeUrl: buildUrl + "/8PoolWebV6.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "GrandTech",
         productName: "PoolGame",
@@ -104,7 +103,7 @@
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
-       var unityInstance = createUnityInstance(canvas, config, (progress) => {
+        createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
               }).then((unityInstance) => {
                 loadingBar.style.display = "none";
