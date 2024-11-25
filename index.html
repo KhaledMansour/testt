@@ -82,6 +82,20 @@
       updateBannerVisibility();
     }
 
+    const buildUrl = "Build";
+    const loaderUrl = `${buildUrl}/8PoolWebV6.loader.js`;
+    const config = {
+      dataUrl: `${buildUrl}/8PoolWebV6.data.unityweb`,
+      frameworkUrl: `${buildUrl}/8PoolWebV6.framework.js.unityweb`,
+      codeUrl: `${buildUrl}/8PoolWebV6.wasm.unityweb`,
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "GrandTech",
+      productName: "PoolGame",
+      productVersion: "1.0",
+      showBanner: unityShowBanner,
+    };
+
+    // Dynamic canvas resizing for maintaining 16:9 aspect ratio
     function resizeCanvas() {
       const aspectRatio = 16 / 9;
       let width = window.innerWidth;
@@ -97,6 +111,7 @@
       canvas.style.height = `${height}px`;
     }
 
+    // Enforce landscape orientation on mobile
     function enforceLandscape() {
       if (window.innerHeight > window.innerWidth) {
         alert("Please rotate your device to landscape mode for the best experience.");
@@ -110,18 +125,31 @@
 
     window.addEventListener('orientationchange', enforceLandscape);
 
-    const buildUrl = "Build";
-    const loaderUrl = `${buildUrl}/8PoolWebV6.loader.js`;
-    const config = {
-      dataUrl: `${buildUrl}/8PoolWebV6.data.unityweb`,
-      frameworkUrl: `${buildUrl}/8PoolWebV6.framework.js.unityweb`,
-      codeUrl: `${buildUrl}/8PoolWebV6.wasm.unityweb`,
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "GrandTech",
-      productName: "PoolGame",
-      productVersion: "1.0",
-      showBanner: unityShowBanner,
-    };
+    // Fullscreen functionality
+    function requestFullscreen() {
+      if (canvas.requestFullscreen) {
+        canvas.requestFullscreen();
+      } else if (canvas.webkitRequestFullscreen) { // Safari support
+        canvas.webkitRequestFullscreen();
+      } else if (canvas.msRequestFullscreen) { // IE/Edge support
+        canvas.msRequestFullscreen();
+      } else {
+        alert("Fullscreen mode is not supported by your browser.");
+      }
+    }
+
+    fullscreenButton.addEventListener("click", () => {
+      requestFullscreen();
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      if (document.fullscreenElement) {
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+      } else {
+        resizeCanvas();
+      }
+    });
 
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       container.className = "unity-mobile";
@@ -139,7 +167,6 @@
         progressBarFull.style.width = `${100 * progress}%`;
       }).then((unityInstance) => {
         loadingBar.style.display = "none";
-        fullscreenButton.onclick = () => unityInstance.SetFullscreen(1);
       }).catch((message) => {
         alert(message);
       });
