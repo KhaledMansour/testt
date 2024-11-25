@@ -38,6 +38,24 @@
       transform: translate(-50%, -50%);
       z-index: 1000;
     }
+    #landscape-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 2000;
+    }
+    #landscape-overlay p {
+      font-size: 24px;
+      margin: 0;
+    }
   </style>
 </head>
 <body>
@@ -52,12 +70,18 @@
     <div id="unity-warning"></div>
   </div>
 
+  <!-- Overlay for Portrait Mode -->
+  <div id="landscape-overlay">
+    <p>Please rotate your device to landscape mode to play the game.</p>
+  </div>
+
   <script>
     const container = document.querySelector("#unity-container");
     const canvas = document.querySelector("#unity-canvas");
     const loadingBar = document.querySelector("#unity-loading-bar");
     const progressBarFull = document.querySelector("#unity-progress-bar-full");
     const warningBanner = document.querySelector("#unity-warning");
+    const overlay = document.querySelector("#landscape-overlay");
 
     function unityShowBanner(msg, type) {
       function updateBannerVisibility() {
@@ -90,7 +114,7 @@
       showBanner: unityShowBanner,
     };
 
-    // Function to resize canvas to fill the screen
+    // Resize canvas dynamically
     function resizeCanvas() {
       container.style.width = "100%";
       container.style.height = "100%";
@@ -98,11 +122,26 @@
       canvas.style.height = "100%";
     }
 
-    // Event listener to resize the canvas on window resize
-    window.addEventListener("resize", resizeCanvas);
+    // Check orientation and display overlay if in portrait mode
+    function checkOrientation() {
+      if (window.innerHeight > window.innerWidth) {
+        overlay.style.display = "flex"; // Show overlay
+      } else {
+        overlay.style.display = "none"; // Hide overlay
+      }
+    }
 
-    // Initial canvas resize
+    // Event listeners for orientation changes
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      checkOrientation();
+    });
+
+    window.addEventListener("orientationchange", checkOrientation);
+
+    // Initial setup
     resizeCanvas();
+    checkOrientation();
 
     loadingBar.style.display = "block";
 
