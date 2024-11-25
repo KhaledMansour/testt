@@ -17,16 +17,17 @@
       background-color: black;
     }
     #unity-container {
-      width: 100%;
-      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      position: absolute;
-      top: 0;
-      left: 0;
     }
     #unity-canvas {
+      display: block;
       width: 100%;
       height: 100%;
       background-color: black;
@@ -37,6 +38,19 @@
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 1000;
+    }
+    #unity-warning {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1500;
+      background-color: yellow;
+      color: black;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      display: none;
     }
     #landscape-overlay {
       position: fixed;
@@ -59,7 +73,7 @@
   </style>
 </head>
 <body>
-  <div id="unity-container" class="unity-desktop">
+  <div id="unity-container">
     <canvas id="unity-canvas" tabindex="-1"></canvas>
     <div id="unity-loading-bar">
       <div id="unity-logo"></div>
@@ -83,24 +97,6 @@
     const warningBanner = document.querySelector("#unity-warning");
     const overlay = document.querySelector("#landscape-overlay");
 
-    function unityShowBanner(msg, type) {
-      function updateBannerVisibility() {
-        warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-      }
-      const div = document.createElement('div');
-      div.innerHTML = msg;
-      warningBanner.appendChild(div);
-      if (type === 'error') div.style = 'background: red; padding: 10px;';
-      else {
-        if (type === 'warning') div.style = 'background: yellow; padding: 10px;';
-        setTimeout(() => {
-          warningBanner.removeChild(div);
-          updateBannerVisibility();
-        }, 5000);
-      }
-      updateBannerVisibility();
-    }
-
     const buildUrl = "Build";
     const loaderUrl = `${buildUrl}/8PoolWebV6.loader.js`;
     const config = {
@@ -111,18 +107,27 @@
       companyName: "GrandTech",
       productName: "PoolGame",
       productVersion: "1.0",
-      showBanner: unityShowBanner,
     };
 
-    // Resize canvas dynamically
-    function resizeCanvas() {
-      container.style.width = "100%";
-      container.style.height = "100%";
-      canvas.style.width = "100%";
-      canvas.style.height = "100%";
+    // Function to show the warning banner
+    function unityShowBanner(msg, type) {
+      warningBanner.style.display = "block";
+      warningBanner.textContent = msg;
+      warningBanner.style.backgroundColor = type === "error" ? "red" : "yellow";
+      setTimeout(() => {
+        warningBanner.style.display = "none";
+      }, 5000);
     }
 
-    // Check orientation and display overlay if in portrait mode
+    // Ensure canvas always fills viewport
+    function resizeCanvas() {
+      container.style.width = `${window.innerWidth}px`;
+      container.style.height = `${window.innerHeight}px`;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+    }
+
+    // Show overlay in portrait mode
     function checkOrientation() {
       if (window.innerHeight > window.innerWidth) {
         overlay.style.display = "flex"; // Show overlay
@@ -131,7 +136,7 @@
       }
     }
 
-    // Event listeners for orientation changes
+    // Add listeners
     window.addEventListener("resize", () => {
       resizeCanvas();
       checkOrientation();
@@ -145,6 +150,7 @@
 
     loadingBar.style.display = "block";
 
+    // Load Unity
     const script = document.createElement("script");
     script.src = loaderUrl;
     script.onload = () => {
@@ -153,7 +159,7 @@
       }).then((unityInstance) => {
         loadingBar.style.display = "none";
       }).catch((message) => {
-        alert(message);
+        unityShowBanner(`Error: ${message}`, "error");
       });
     };
 
